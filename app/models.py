@@ -23,3 +23,19 @@ class CartItem(db.Model):
     quantity = db.Column(db.Integer, default=1)
 
     product = db.relationship("Product")
+
+class CustomerOrder(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    
+    created_at = db.Column(db.DateTime, default=db.func.now())
+
+    items = db.relationship("OrderItem", backref="order", lazy=True)
+
+class OrderItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey("customer_order.id"))
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"))
+    quantity = db.Column(db.Integer, nullable=False)
+
+    product = db.relationship("Product")

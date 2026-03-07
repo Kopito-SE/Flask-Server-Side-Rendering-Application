@@ -1,5 +1,7 @@
 from flask import Blueprint, session, redirect, url_for, flash, render_template, request
-from ..models import CartItem, User, Product
+
+from app import auth
+from ..models import CartItem, CustomerOrder, OrderItem, User, Product
 from .. import db
 
 main = Blueprint("main", __name__)
@@ -83,3 +85,37 @@ def view_cart():
     user_id = session["user_id"]
     cart_items = CartItem.query.filter_by(user_id=user_id).all()
     return render_template("cart.html", cart_items=cart_items)
+@main.route("/checkout")
+def checkout():
+    if "user_id" not in session:
+        flash("Please login first")
+        return redirect(url_for("auth.login"))
+    user_id = session["user_id"]
+    cart_items = CartItem.query.filter_by(user_id=user_id).all()
+    if not cart_items:
+        flash("Your cart is empty!")
+        return redirect(url_for("main.home"))
+    
+    new_order = CustomerOrder(user_id=user_id)
+
+    db.session.add(new_order)
+    db.session.commit()
+
+    for item in cart_items:
+        order_item = OrderItem(
+            order_id=new_order.id,
+            product_id=item.product_id,
+            quantity=item.quantity
+        )
+        db.session.add(order_item)
+    CartItem.query.filter_by(user_id=user_id).delete()
+    db.session.commit()
+    flash("Order placed successfully!")
+    return redirect(url_for("main.home"))
+@main.route("/orders")
+def orders():
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+    user_id = session["user_id"]
+    orders = CustomerOrder.query.filter_by(user_id=user_id).all()
+    return render_template("orders.html",orders=orders)
