@@ -14,7 +14,8 @@ main = Blueprint("main", __name__)
 @main.route("/")
 def home():
     products = Product.query.all()
-    return render_template("home.html", products=products)
+    categories = Category.query.all()
+    return render_template("home.html", products=products, categories=categories)
 
 
 @main.route("/dashboard")
@@ -25,6 +26,7 @@ def dashboard():
 
     user = User.query.get(session["user_id"])
     products = Product.query.all()
+    categories = Category.query.all()
 
     return render_template("dashboard.html", user=user, products=products)
 
