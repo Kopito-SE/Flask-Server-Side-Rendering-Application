@@ -1,4 +1,4 @@
-import decimal
+﻿import decimal
 import os
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, session, url_for
@@ -177,3 +177,115 @@ def category_view(category_id):
     category = Category.query.get_or_404(category_id)
     products = Product.query.filter_by(category_id=category.id).all()
     return render_template("category.html", category=category, products=products)
+
+@main.route("/admin/categories")
+def admin_categories():
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+    user = User.query.get(session["user_id"])
+    if user.role != "admin":
+        flash("Admin Privillages Required")
+        return redirect(url_for("main.home"))
+    categories = Category.query.all()
+    return render_template("admin_categories.html", categories=categories)
+@main.route("/admin/add-category", methods=["GET", "POST"])
+def add_category():
+    if "user_id" not in session:
+        flash("Please login first")
+        return redirect(url_for("auth.login"))
+    user = User.query.get(session["user_id"])
+    if user.role != "admin":
+        flash("Admin Privillages Required")
+        return redirect(url_for("main.home"))
+    if request.method == "POST":
+        name = request.form.get("name")
+        if not name:
+            flash("Category Name is Required!")
+            return redirect(url_for("main.add_category"))
+        new_category = Category(name=name)
+        try:
+            db.session.add(new_category)
+            db.session.commit()
+            flash("Category added successfully!")
+            return redirect(url_for("main.admin_categories"))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error saving to database: {str(e)}")
+            return redirect(url_for("main.add_category"))
+    return render_template("add_category.html")
+@main.route("/admin/edit-category/<int:category_id>", methods=["GET", "POST"])
+def edit_category(category_id):
+    if "user_id" not in session:
+        flash("Please Login First")
+        return redirect(url_for("auth.login"))
+    user = User.query.get(session["user_id"])
+    if user.role != "admin":
+        flash("Admin Privillages Required")
+        return redirect(url_for("main.home"))
+    category = Category.query.get_or_404(category_id)
+    if request.method == "POST":
+        name = request.form.get("name")
+        if not name:
+            flash("Category name is required!")
+            return redirect(url_for("main.edit_category", category_id=category_id))
+        
+        category.name = name
+        try:
+            db.session.commit()
+            flash("Category updated successfully!")
+            return redirect(url_for("main.admin_categories"))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"An Error has occured updating Category Database")
+            return redirect(url_for("main.admin_categories"))
+    return render_template("edit_category.html",category=category)
+@main.route("/admin/delete-category/<int:category_id>")
+def delete_category(category_id):
+    if "user_id" not in session:
+        flash("Please Login First")
+        return redirect(url_for("auth.login"))
+    user = User.query.get(session["user_id"])
+    if user.role != "admin":
+        flash("Admin Privillages Required")
+        return redirect(url_for(main.home))
+    category = Category.query.get_or_404(category_id)
+    db.session.delete(category)
+    db.session.commit()
+    flash("Category deleted!")
+    return redirect(url_for("main.admin_categories"))
+
+@main.route("/admin/orders")
+def admin_orders():
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+    
+    user = User.query.get(session["user_id"])
+    
+   
+    if user.role != "admin":
+        flash("Admin privileges required")
+        return redirect(url_for("main.home"))
+    
+    orders = CustomerOrder.query.all()
+    return render_template("admin_orders.html", orders=orders)
+
+@main.route("/admin/update-order/<int:order_id>",methods=["POST", "GET"])
+def update_order_status(order_id):
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+    user = User.query.get(session["user_id"])
+    
+    if user.role != "admin":
+        flash("Admin Privillages Required")
+        return redirect(url_for("main.home"))
+    order = CustomerOrder.query.get_or_404(order_id)
+    if request.method == "POST":
+        status = request.form.get("status")
+        order.order_status = status
+
+        db.session.commit()
+        flash("Order Status Updated!")
+        return redirect(url_for("main.admin_orders"))
+    return render_template("update_order.html",order=order)
+
+        

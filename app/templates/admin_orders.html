@@ -1,0 +1,31 @@
+<h2>Admin: All Orders</h2>
+
+{% for order in orders %}
+
+<div>
+
+<h3>Order #{{ order.id }}</h3>
+
+<p>Customer: {{ order.user.username }}</p>
+
+<p>Status: {{ order.order_status }}</p>
+
+<h4>Items:</h4>
+
+{% for item in order.items %}
+
+<p>
+{{ item.product.name }} × {{ item.quantity }}
+</p>
+
+{% endfor %}
+
+<a href="{{ url_for('main.update_order_status', order_id=order.id) }}">
+Update Status
+</a>
+
+<hr>
+
+</div>
+
+{% endfor %}

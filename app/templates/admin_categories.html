@@ -1,0 +1,12 @@
+<h2>Admin: Manage Categories</h2>
+<a href="{{url_for('main.add_category')}}">Add New Category</a>
+<br><br>
+{% for cat in categories %}
+    <div>
+        <h3>{{ cat.name}}</h3>
+        <a href="{{url_for('main.edit_category',category_id=cat.id)}}">Edit</a>
+        <a href="{{url_for('main.delete_category',category_id=cat.id)}}" onclick="return confirm('Are you sure you want to delete?')">Delete</a>
+        <hr>
+        
+    </div>
+{% endfor %}

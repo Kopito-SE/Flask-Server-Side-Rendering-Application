@@ -39,8 +39,10 @@ class CustomerOrder(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     
     created_at = db.Column(db.DateTime, default=db.func.now())
+    order_status = db.Column(db.String(50),default="pending")
 
     items = db.relationship("OrderItem", backref="order", lazy=True)
+    user = db.relationship('User', backref='orders')
 
 class OrderItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
