@@ -1,12 +1,15 @@
+<<<<<<< HEAD
 ﻿import decimal
 import os
+=======
+﻿import os
+>>>>>>> e03631e9450f7a14aa9c5f76c5dc7fbcd2a60ea4
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, session, url_for
 from werkzeug.utils import secure_filename
 
 from .. import db
-from ..models import CartItem, Category, CustomerOrder, OrderItem, Product, User, Category
-
+from ..models import CartItem, Category, CustomerOrder, OrderItem, Product, User
 
 main = Blueprint("main", __name__)
 
@@ -26,7 +29,6 @@ def dashboard():
 
     user = User.query.get(session["user_id"])
     products = Product.query.all()
-    categories = Category.query.all()
 
     return render_template("dashboard.html", user=user, products=products)
 
@@ -41,21 +43,20 @@ def add_product():
     if user.role != "admin":
         flash("Admin access required")
         return redirect(url_for("main.home"))
-    
-     # Get all categories for the dropdown (for both GET and POST requests)
+
     categories = Category.query.all()
+
     if request.method == "POST":
         name = request.form.get("name")
         price = request.form.get("price")
         description = request.form.get("description")
         file = request.files.get("image")
-        category_id = request.form.get("category_id")# Get category from form
+        category_id = request.form.get("category_id")
 
         if not name or not price:
             flash("Name and Price are required!")
             return redirect(url_for("main.add_product"))
-        
-        # Validate category_id
+
         if not category_id:
             flash("Please select a category!")
             return redirect(url_for("main.add_product"))
@@ -67,7 +68,6 @@ def add_product():
                 flash("Invalid image filename!")
                 return redirect(url_for("main.add_product"))
 
-            # Save under app/static/uploads so Flask can serve it via url_for('static', ...)
             upload_folder = os.path.join(current_app.static_folder, "uploads")
             os.makedirs(upload_folder, exist_ok=True)
             filepath = os.path.join(upload_folder, filename)
@@ -84,13 +84,12 @@ def add_product():
             flash("Price must be a valid number!")
             return redirect(url_for("main.add_product"))
 
-        # Create product with category_id
         new_product = Product(
             name=name,
-            price=float(price),
+            price=price_float,
             description=description,
             image=filename,
-            category_id=int(category_id)
+            category_id=int(category_id),
         )
 
         try:
@@ -102,8 +101,7 @@ def add_product():
             db.session.rollback()
             flash(f"Error saving to database: {str(e)}")
             return redirect(url_for("main.add_product"))
-    
-    # Pass categories to template for GET request
+
     return render_template("add_product.html", categories=categories)
 
 
@@ -172,20 +170,30 @@ def orders():
     orders = CustomerOrder.query.filter_by(user_id=user_id).all()
     return render_template("orders.html", orders=orders)
 
+
 @main.route("/category/<int:category_id>")
 def category_view(category_id):
     category = Category.query.get_or_404(category_id)
     products = Product.query.filter_by(category_id=category.id).all()
     return render_template("category.html", category=category, products=products)
 
+<<<<<<< HEAD
 @main.route("/admin/categories")
 def admin_categories():
     if "user_id" not in session:
+=======
+
+@main.route("/admin/products")
+def admin_products():
+    if "user_id" not in session:
+        flash("Please Login First")
+>>>>>>> e03631e9450f7a14aa9c5f76c5dc7fbcd2a60ea4
         return redirect(url_for("auth.login"))
     user = User.query.get(session["user_id"])
     if user.role != "admin":
         flash("Admin Privillages Required")
         return redirect(url_for("main.home"))
+<<<<<<< HEAD
     categories = Category.query.all()
     return render_template("admin_categories.html", categories=categories)
 @main.route("/admin/add-category", methods=["GET", "POST"])
@@ -289,3 +297,55 @@ def update_order_status(order_id):
     return render_template("update_order.html",order=order)
 
         
+=======
+    products = Product.query.all()
+    return render_template("admin_products.html", products=products)
+
+
+@main.route("/admin/edit-product/<int:product_id>", methods=["GET", "POST"])
+def edit_product(product_id):
+    if "user_id" not in session:
+        flash("Please Login First")
+        return redirect(url_for("auth.login"))
+    user = User.query.get(session["user_id"])
+    if user.role != "admin":
+        flash("Admin Privillages Required")
+        return redirect(url_for("main.home"))
+
+    product = Product.query.get_or_404(product_id)
+    categories = Category.query.all()
+
+    if request.method == "POST":
+        product.name = request.form.get("name")
+        product.price = float(request.form.get("price"))
+        product.description = request.form.get("description")
+        product.category_id = int(request.form.get("category_id"))
+
+        image_file = request.files.get("image")
+        if image_file:
+            filename = secure_filename(image_file.filename)
+            file_path = os.path.join(current_app.static_folder, "uploads", filename)
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            image_file.save(file_path)
+            product.image = filename
+        db.session.commit()
+        flash("Product updated successfully!")
+        return redirect(url_for("main.admin_products"))
+    return render_template("edit_product.html", product=product, categories=categories)
+
+@main.route("/admin/delete-product/<int:product_id>", methods=["GET", "POST"])
+def delete_product(product_id):
+    if "user_id" not in session:
+        flash("Please Login First")
+        return redirect(url_for("auth.login"))
+    user = User.query.get(session["user_id"])
+    if user.role != "admin":
+        flash("Admin Privillages Required")
+        return redirect(url_for("main.home"))
+
+    product = Product.query.get_or_404(product_id)
+    db.session.delete(product)
+    db.session.commit()
+    flash("Product deleted successfully!")
+    return redirect(url_for("main.admin_products"))
+>>>>>>> e03631e9450f7a14aa9c5f76c5dc7fbcd2a60ea4

@@ -1,21 +1,21 @@
-from flask import Flask
+﻿from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect, text
 
 db = SQLAlchemy()
 
 
-def _ensure_product_image_column():
+def _ensure_column_exists(table, column, column_sql):
     inspector = inspect(db.engine)
-    if "product" not in inspector.get_table_names():
+    if table not in inspector.get_table_names():
         return
 
-    column_names = {column["name"] for column in inspector.get_columns("product")}
-    if "image" in column_names:
+    column_names = {column["name"] for column in inspector.get_columns(table)}
+    if column in column_names:
         return
 
     with db.engine.begin() as connection:
-        connection.execute(text("ALTER TABLE product ADD COLUMN image VARCHAR(200)"))
+        connection.execute(text(f"ALTER TABLE {table} ADD COLUMN {column_sql}"))
 
 
 def create_app():
@@ -33,7 +33,8 @@ def create_app():
     with app.app_context():
         db.create_all()
         try:
-            _ensure_product_image_column()
+            _ensure_column_exists("product", "image", "image VARCHAR(200)")
+            _ensure_column_exists("product", "category_id", "category_id INTEGER")
         except Exception as e:
             print(f"Schema sync warning: {e}")
         print("Database table created")
