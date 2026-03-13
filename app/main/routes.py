@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-﻿import decimal
 import os
-=======
-﻿import os
->>>>>>> e03631e9450f7a14aa9c5f76c5dc7fbcd2a60ea4
 
 from flask import Blueprint, current_app, flash, redirect, render_template, request, session, url_for
 from werkzeug.utils import secure_filename
@@ -177,23 +172,16 @@ def category_view(category_id):
     products = Product.query.filter_by(category_id=category.id).all()
     return render_template("category.html", category=category, products=products)
 
-<<<<<<< HEAD
+
 @main.route("/admin/categories")
 def admin_categories():
     if "user_id" not in session:
-=======
-
-@main.route("/admin/products")
-def admin_products():
-    if "user_id" not in session:
         flash("Please Login First")
->>>>>>> e03631e9450f7a14aa9c5f76c5dc7fbcd2a60ea4
         return redirect(url_for("auth.login"))
     user = User.query.get(session["user_id"])
     if user.role != "admin":
         flash("Admin Privillages Required")
         return redirect(url_for("main.home"))
-<<<<<<< HEAD
     categories = Category.query.all()
     return render_template("admin_categories.html", categories=categories)
 @main.route("/admin/add-category", methods=["GET", "POST"])
@@ -297,7 +285,17 @@ def update_order_status(order_id):
     return render_template("update_order.html",order=order)
 
         
-=======
+@main.route("/admin/products")
+def admin_products():
+
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+
+    user = User.query.get(session["user_id"])
+    if user.role != "admin":
+        flash("Admin access required!")
+        return redirect(url_for("main.home"))
+
     products = Product.query.all()
     return render_template("admin_products.html", products=products)
 
@@ -348,4 +346,32 @@ def delete_product(product_id):
     db.session.commit()
     flash("Product deleted successfully!")
     return redirect(url_for("main.admin_products"))
->>>>>>> e03631e9450f7a14aa9c5f76c5dc7fbcd2a60ea4
+
+@main.route("/admin/dashboard")
+def admin_dashboard():
+    
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+    user = User.query.get(session["user_id"])
+    if user.role != "admin":
+        return redirect(url_for("main.home"))
+    total_users = User.query.count()
+    total_products = Product.query.count()
+    total_categories = Category.query.count()
+    total_orders = CustomerOrder.query.count()
+     
+     #Calculate Revenue
+    order_items = OrderItem.query.all()
+
+    revenue = 0
+    for item in order_items:
+        revenue += item.product.price * item.quantity
+
+    return render_template(
+        "admin_dashboard.html",
+        total_users=total_users,
+        total_products=total_products,
+        total_categories=total_categories,
+        total_orders=total_orders,
+        revenue=revenue
+    )
