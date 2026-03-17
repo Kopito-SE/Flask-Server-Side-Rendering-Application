@@ -294,21 +294,21 @@
         
         <div class="cart-item-detail">
             <span class="cart-item-label">Price:</span>
-            <span class="cart-item-value">Ksh {{ item.product.price }}</span>
+            <span class="cart-item-value">Ksh {{ "%.2f"|format(item.product.price) }}</span>
         </div>
         
         <div class="cart-item-detail">
             <span class="cart-item-label">Quantity:</span>
             <div class="quantity-control">
-                <button class="quantity-btn" onclick="updateQuantity({{ item.id }}, 'decrease')">-</button>
+                <button type="button" class="quantity-btn" onclick="updateQuantity({{ item.id }}, 'decrease')">-</button>
                 <span class="quantity-display">{{ item.quantity }}</span>
-                <button class="quantity-btn" onclick="updateQuantity({{ item.id }}, 'increase')">+</button>
+                <button type="button" class="quantity-btn" onclick="updateQuantity({{ item.id }}, 'increase')">+</button>
             </div>
         </div>
         
         <div class="cart-item-detail">
             <span class="cart-item-label">Subtotal:</span>
-            <span class="cart-item-value">Ksh {{ item.product.price * item.quantity }}</span>
+            <span class="cart-item-value">Ksh {{ "%.2f"|format(item.product.price * item.quantity) }}</span>
         </div>
     </div>
 {% endfor %}
@@ -330,7 +330,7 @@
             
             <div class="summary-row total">
                 <span>Total:</span>
-                <span class="cart-item-value">Ksh {{ ns.total }}</span>
+                <span class="cart-item-value">Ksh {{ "%.2f"|format(ns.total) }}</span>
             </div>
             
             <a href="{{ url_for('main.checkout') }}" class="checkout-btn">
@@ -356,31 +356,34 @@
 {% block extra_js %}
 
 <script>
-    function updateQuantity(itemId, action) {
-        // Send AJAX request
-        fetch('/update-cart', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                item_id: itemId,
-                action: action
-            })
+ function updateQuantity(itemId, action) {
+
+    fetch("/update-cart", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "same-origin",
+        body: JSON.stringify({
+            item_id: itemId,
+            action: action
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Reload the page to show updated quantities
-                window.location.reload();
-            } else {
-                alert('Error updating quantity: ' + (data.error || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to update quantity');
-        });
-    }
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || "Something went wrong updating the cart.");
+        }
+
+    })
+    .catch(error => {
+        console.error("Cart update error:", error);
+        alert("Something went wrong updating the cart.");
+    });
+}  
+
 </script>
 {% endblock %}

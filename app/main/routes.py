@@ -1,11 +1,11 @@
 ﻿import os
 
-from flask import Blueprint, current_app, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, session, url_for, jsonify
 from werkzeug.utils import secure_filename
 
 from .. import db
 from ..models import CartItem, Category, CustomerOrder, OrderItem, Product, User
-
+from flask_login import login_required, current_user
 main = Blueprint("main", __name__)
 
 
@@ -128,7 +128,8 @@ def view_cart():
     total = sum(item.product.price * item.quantity for item in cart_items)
     return render_template("cart.html", cart_items=cart_items,total=total)
 
-@main.route('/update-cart', methods=['GET', 'POST'])
+@main.route("/update-cart", methods=["POST"])
+@login_required
 def update_cart():
     try:
         data = request.get_json()

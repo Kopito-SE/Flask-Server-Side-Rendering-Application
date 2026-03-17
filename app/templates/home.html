@@ -1,6 +1,6 @@
 {% extends "base1.html" %}
 
-{% block title %}Products - Eagle Web Store{% endblock %}
+{% block title %}Products -Kopito Stores{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -304,6 +304,18 @@
 {% endblock %}
 
 {% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %} 
+{% if messages %} 
+{% for category, message in messages %}
+ <div class="alert alert-{{ category }}"> 
+    
+    {{ message }} 
+
+ </div> 
+{% endfor %}
+{% endif %} 
+{% endwith %}
+
 <div class="container-custom">
     <!-- Header -->
     <div class="page-header">
@@ -311,7 +323,7 @@
             <i class="fas fa-box me-2"></i>
             All Products
         </h2>
-        {% if current_user %}
+        {% if current_user.is_authenticated and current_user.role == "admin" %}
             <a href="{{ url_for('main.add_product') }}" class="btn-add-product">
                 <i class="fas fa-plus-circle"></i>
                 Add New Product
