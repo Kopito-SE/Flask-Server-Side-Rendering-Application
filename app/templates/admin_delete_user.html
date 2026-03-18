@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Manage Users{% endblock %}
+
+{% block extra_css %}
+<!-- Optional: small custom CSS -->
+<style>
+    .table-actions button {
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
+    .table-actions i {
+        color: red;
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Manage Users</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td class="table-actions">
+                    <form action="{{ url_for('main.delete_user', user_id=user.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ user.username }}?');">
+                        <button type="submit" title="Delete User">
+                            <i class="bi bi-trash"></i> <!-- Bootstrap Icons trash -->
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

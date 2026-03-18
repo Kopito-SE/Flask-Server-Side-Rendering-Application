@@ -405,3 +405,16 @@ def admin_dashboard():
         total_orders=total_orders,
         revenue=revenue
     )
+
+@main.route("/admin/detete-user/<int:user_id>", methods=["POST"])
+def delete_user(user_id):
+    user = User.query.get_or_404("user_id")
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        flash("User deleted Successfully!","success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting user:{e}","danger")
+    return redirect(url_for("main.admin_dashboard"))  
+    
