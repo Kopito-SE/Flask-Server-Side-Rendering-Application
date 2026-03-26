@@ -1,127 +1,389 @@
 <style>
-.admin-orders-container{
-    max-width:1000px;
-    margin:auto;
-    padding:40px;
-    font-family:Arial, Helvetica, sans-serif;
-}
+  /* Modern CSS Reset & Base Styles */
+  .admin-orders-container * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-.admin-title{
-    font-size:2rem;
-    font-weight:700;
-    margin-bottom:30px;
-    color:#333;
-}
+  .admin-orders-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #f8fafc 100%);
+    min-height: 100vh;
+  }
 
-.order-card{
-    background:white;
-    padding:25px;
-    margin-bottom:25px;
-    border-radius:12px;
-    box-shadow:0 8px 20px rgba(0,0,0,0.1);
-    transition:0.3s;
-}
+  /* Modern Typography */
+  .admin-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #1e293b 0%, #2d3a4f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 2rem;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
 
-.order-card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 12px 30px rgba(0,0,0,0.15);
-}
+  .admin-title::before {
+    content: "📊";
+    font-size: 2rem;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    color: #3b82f6;
+  }
 
-.order-id{
-    font-size:1.5rem;
-    font-weight:700;
-    margin-bottom:10px;
-    color:#1f2937;
-}
+  /* Modern Order Card */
+  .order-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 1.5rem;
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(203, 213, 225, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
 
-.order-info{
-    font-size:1rem;
-    margin-bottom:8px;
-    color:#444;
-}
+  .order-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
 
-.status{
-    display:inline-block;
-    padding:6px 12px;
-    border-radius:6px;
-    background:#667eea;
-    color:white;
-    font-weight:600;
-}
+  .order-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    border-color: rgba(59, 130, 246, 0.2);
+  }
 
-.items-section{
-    margin-top:15px;
-    margin-bottom:15px;
-}
+  .order-card:hover::before {
+    opacity: 1;
+  }
 
-.items-section h4{
-    margin-bottom:10px;
-    color:#333;
-}
+  /* Order Header */
+  .order-id {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
 
-.item{
-    background:#f5f5f5;
-    padding:8px 12px;
-    border-radius:6px;
-    margin-bottom:6px;
-}
+  /* Modern Status Badge - Base Styles */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.01em;
+    transition: all 0.2s ease;
+  }
 
-.update-btn{
-    display:inline-block;
-    margin-top:10px;
-    padding:10px 18px;
-    background:#10b981;
-    color:white;
-    text-decoration:none;
-    border-radius:8px;
-    font-weight:600;
-}
+  .status::before {
+    content: "●";
+    font-size: 0.75rem;
+    animation: pulse 2s infinite;
+  }
 
-.update-btn:hover{
-    background:#059669;
-}
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  /* Status Color Variants */
+  .status-pending {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+  }
+
+  .status-processing {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+  }
+
+  .status-shipped {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+  }
+
+  .status-delivered {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+  }
+
+  .status-cancelled {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+  }
+
+  .status-refunded {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+  }
+
+  .status-on-hold {
+    background: linear-gradient(135deg, #ec489a 0%, #db2777 100%);
+    color: white;
+  }
+
+  /* Default status for any unrecognized status */
+  .status-default {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    color: white;
+  }
+
+  /* Order Info Grid */
+  .order-info {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(203, 213, 225, 0.3);
+    font-size: 0.95rem;
+    color: #334155;
+  }
+
+  .order-info strong {
+    font-weight: 600;
+    color: #0f172a;
+    min-width: 85px;
+  }
+
+  /* Modern Items Section */
+  .items-section {
+    margin: 1.5rem 0;
+    background: #f8fafc;
+    border-radius: 1rem;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .items-section h4 {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .items-section h4::before {
+    content: "📦";
+    font-size: 1rem;
+  }
+
+  /* Modern Item Cards */
+  .item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: white;
+    border-radius: 0.75rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+    border: 1px solid #e2e8f0;
+    font-size: 0.95rem;
+    color: #1e293b;
+  }
+
+  .item:last-child {
+    margin-bottom: 0;
+  }
+
+  .item:hover {
+    transform: translateX(4px);
+    border-color: #3b82f6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .item::after {
+    content: "×";
+    font-weight: 600;
+    color: #94a3b8;
+    margin-left: 0.5rem;
+  }
+
+  /* Modern Update Button */
+  .update-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .update-btn::before {
+    content: "✏️";
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+  }
+
+  .update-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  }
+
+  .update-btn:hover::before {
+    transform: rotate(15deg);
+  }
+
+  .update-btn:active {
+    transform: translateY(0);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .admin-orders-container {
+      padding: 1rem;
+    }
+
+    .admin-title {
+      font-size: 1.75rem;
+    }
+
+    .order-card {
+      padding: 1.25rem;
+    }
+
+    .order-id {
+      font-size: 1.25rem;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .order-info {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .order-info strong {
+      min-width: auto;
+    }
+
+    .item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      text-align: left;
+    }
+
+    .item::after {
+      align-self: flex-end;
+    }
+
+    .update-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  /* Smooth Scrollbar */
+  .admin-orders-container::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .admin-orders-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  .admin-orders-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+
+  .admin-orders-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
 </style>
 
-
 <div class="admin-orders-container">
+  <h2 class="admin-title">Admin: All Orders</h2>
 
-<h2 class="admin-title">Admin: All Orders</h2>
+  {% for order in orders %}
+  <div class="order-card">
+    <div class="order-id">
+      <span>Order #{{ order.id }}</span>
+    </div>
 
-{% for order in orders %}
+    <div class="order-info">
+      <strong>Customer:</strong> 
+      <span>{{ order.user.username }}</span>
+    </div>
 
-<div class="order-card">
+    <div class="order-info">
+      <strong>Status:</strong> 
+      <span class="status 
+        {% if order.order_status|lower == 'pending' %}status-pending
+        {% elif order.order_status|lower == 'processing' %}status-processing
+        {% elif order.order_status|lower == 'shipped' %}status-shipped
+        {% elif order.order_status|lower == 'delivered' %}status-delivered
+        {% elif order.order_status|lower == 'cancelled' or order.order_status|lower == 'canceled' %}status-cancelled
+        {% elif order.order_status|lower == 'refunded' %}status-refunded
+        {% elif order.order_status|lower == 'on hold' or order.order_status|lower == 'on-hold' %}status-on-hold
+        {% else %}status-default{% endif %}">
+        {{ order.order_status }}
+      </span>
+    </div>
 
-<h3 class="order-id">Order #{{ order.id }}</h3>
+    <div class="items-section">
+      <h4>Items</h4>
+      {% for item in order.items %}
+      <div class="item">
+        {{ item.product.name }} × {{ item.quantity }}
+      </div>
+      {% endfor %}
+    </div>
 
-<p class="order-info">
-<strong>Customer:</strong> {{ order.user.username }}
-</p>
-
-<p class="order-info">
-<strong>Status:</strong> 
-<span class="status">{{ order.order_status }}</span>
-</p>
-
-<div class="items-section">
-
-<h4>Items:</h4>
-
-{% for item in order.items %}
-
-<div class="item">
-{{ item.product.name }} × {{ item.quantity }}
-</div>
-
-{% endfor %}
-
-</div>
-
-<a href="{{ url_for('main.update_order_status', order_id=order.id) }}" class="update-btn">
-Update Status
-</a>
-
-</div>
-
-{% endfor %}
-
+    <a href="{{ url_for('main.update_order_status', order_id=order.id) }}" class="update-btn">
+      Update Status
+    </a>
+  </div>
+  {% endfor %}
 </div>

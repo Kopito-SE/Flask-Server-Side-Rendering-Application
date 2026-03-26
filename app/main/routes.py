@@ -406,15 +406,57 @@ def admin_dashboard():
         revenue=revenue
     )
 
-@main.route("/admin/detete-user/<int:user_id>", methods=["POST"])
+
+@main.route("/admin/users")
+def admin_users():
+    if "user_id" not in session:
+        flash("Please login first")
+        return redirect(url_for("auth.login"))
+    
+    user = User.query.get(session["user_id"])
+    if user.role != "admin":
+        flash("Admin privileges required")
+        return redirect(url_for("main.home"))
+    
+    # Get all users except the current admin (to prevent self-deletion)
+    users = User.query.filter(User.id != user.id).all()
+    return render_template("admin_users.html", users=users)
+
+@main.route("/admin/delete-user/<int:user_id>", methods=["POST"])
 def delete_user(user_id):
-    user = User.query.get_or_404("user_id")
+    if "user_id" not in session:
+        flash("Please login first")
+        return redirect(url_for("auth.login"))
+    
+    admin_user = User.query.get(session["user_id"])
+    if admin_user.role != "admin":
+        flash("Admin privileges required")
+        return redirect(url_for("main.home"))
+    
+    user_to_delete = User.query.get_or_404(user_id)
+    
+    # Prevent admin from deleting themselves
+    if user_to_delete.id == admin_user.id:
+        flash("You cannot delete your own account!")
+        return redirect(url_for("main.admin_users"))
+    
     try:
-        db.session.delete(user)
+        # Delete user's cart items first (due to foreign key constraints)
+        CartItem.query.filter_by(user_id=user_to_delete.id).delete()
+        
+        # Delete user's order items and orders
+        orders = CustomerOrder.query.filter_by(user_id=user_to_delete.id).all()
+        for order in orders:
+            OrderItem.query.filter_by(order_id=order.id).delete()
+            db.session.delete(order)
+        
+        # Finally delete the user
+        db.session.delete(user_to_delete)
         db.session.commit()
-        flash("User deleted Successfully!","success")
+        
+        flash(f"User {user_to_delete.username} has been deleted successfully!")
     except Exception as e:
         db.session.rollback()
-        flash(f"Error deleting user:{e}","danger")
-    return redirect(url_for("main.admin_dashboard"))  
+        flash(f"Error deleting user: {str(e)}")
     
+    return redirect(url_for("main.admin_users"))  
