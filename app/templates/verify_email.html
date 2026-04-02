@@ -2,28 +2,315 @@
 
 {% block title %}Verify Email{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Override any existing auth styles */
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1rem;
+        margin: 0;
+    }
+    
+    .auth-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        width: 100%;
+        max-width: 450px;
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .auth-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+        text-align: center;
+    }
+    
+    .auth-subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Form Styles */
+    .auth-form {
+        margin-top: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #555;
+        font-size: 0.9rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        transition: all 0.3s;
+        font-family: monospace;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        text-align: center;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    /* Code input specific styling */
+    input#code {
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-align: center;
+        letter-spacing: 4px;
+    }
+    
+    /* Button Styles */
+    .btn-verify {
+        width: 100%;
+        padding: 0.875rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 0.5rem;
+    }
+    
+    .btn-verify:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-verify:active {
+        transform: translateY(0);
+    }
+    
+    /* Alert Styles */
+    .alert {
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .alert-warning {
+        background-color: #fff3e0;
+        border: 1px solid #ffb347;
+        color: #856404;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        border: 1px solid #28a745;
+        color: #155724;
+    }
+    
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #dc3545;
+        color: #721c24;
+    }
+    
+    .alert i {
+        font-size: 1.1rem;
+    }
+    
+    /* Resend Code Section - Simplified */
+    .resend-section {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e0e0e0;
+    }
+    
+    .resend-text {
+        color: #666;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Back to Login */
+    .back-link {
+        text-align: center;
+        margin-top: 1rem;
+    }
+    
+    .back-link a {
+        color: #666;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: color 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    
+    .back-link a:hover {
+        color: #667eea;
+    }
+    
+    /* Responsive */
+    @media (max-width: 480px) {
+        .auth-card {
+            padding: 1.5rem;
+        }
+        
+        .auth-title {
+            font-size: 1.5rem;
+        }
+        
+        .form-control {
+            padding: 0.6rem 0.8rem;
+        }
+        
+        input#code {
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+    }
+    
+    /* Loading state */
+    .btn-verify.loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    
+    /* Animation for code input */
+    @keyframes pulse {
+        0%, 100% {
+            border-color: #e0e0e0;
+        }
+        50% {
+            border-color: #667eea;
+        }
+    }
+    
+    .form-control:focus {
+        animation: pulse 0.5s ease-out;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
         <h2 class="auth-title">Verify Your Email</h2>
-        <p class="text-muted mb-3">Enter the 6-digit code we sent to your email.</p>
+        <p class="auth-subtitle">Enter the 6-digit code we sent to your email</p>
 
-        <form method="POST" action="{{ url_for('auth.verify_email') }}" class="auth-form">
+        <form method="POST" action="{{ url_for('auth.verify_email') }}" class="auth-form" id="verifyForm">
             <div class="form-group">
                 <label for="code">Verification Code</label>
-                <input type="text" id="code" name="code" class="form-control" placeholder="123456" required maxlength="6" autocomplete="one-time-code">
+                <input type="text" 
+                       id="code" 
+                       name="code" 
+                       class="form-control" 
+                       placeholder="123456" 
+                       required 
+                       maxlength="6" 
+                       autocomplete="one-time-code"
+                       pattern="[0-9]{6}"
+                       title="Please enter a 6-digit numeric code">
             </div>
 
-            {% with messages = get_flashed_messages() %}
+            <!-- Flash Messages - Maintains original functionality -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    {% for message in messages %}
-                    <div class="alert alert-warning mt-2">{{ message }}</div>
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category else 'warning' }}">
+                            <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                            {{ message }}
+                        </div>
                     {% endfor %}
                 {% endif %}
             {% endwith %}
 
-            <button type="submit" class="btn btn-primary btn-block">Verify</button>
+            <button type="submit" class="btn-verify" id="verifyBtn">
+                <i class="bi bi-envelope-check"></i> Verify Email
+            </button>
         </form>
+
+        <!-- Resend Section - Simple text without form (since route doesn't exist) -->
+        <div class="resend-section">
+            <div class="resend-text">
+                <i class="bi bi-envelope"></i> Didn't receive a code? 
+                Please check your spam folder or contact support.
+            </div>
+        </div>
+
+        <!-- Back to Login Link -->
+        <div class="back-link">
+            <a href="{{ url_for('auth.login') }}">
+                <i class="bi bi-arrow-left"></i> Back to Login
+            </a>
+        </div>
     </div>
 </div>
+
+{% block extra_js %}
+<script>
+    // Auto-format code input to only accept numbers
+    const codeInput = document.getElementById('code');
+    if (codeInput) {
+        codeInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+        });
+        
+        // Auto-submit when 6 digits are entered (optional)
+        codeInput.addEventListener('keyup', function(e) {
+            if (this.value.length === 6) {
+                document.getElementById('verifyForm').submit();
+            }
+        });
+    }
+    
+    // Prevent multiple form submissions
+    const verifyForm = document.getElementById('verifyForm');
+    const verifyBtn = document.getElementById('verifyBtn');
+    
+    if (verifyForm) {
+        verifyForm.addEventListener('submit', function() {
+            verifyBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Verifying...';
+            verifyBtn.classList.add('loading');
+            verifyBtn.disabled = true;
+        });
+    }
+</script>
+{% endblock %}
 {% endblock %}

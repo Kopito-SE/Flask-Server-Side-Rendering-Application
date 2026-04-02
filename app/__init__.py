@@ -1,4 +1,4 @@
-﻿from flask import Flask
+﻿from flask import Flask, app
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect, text
 from flask_mail import Mail
@@ -31,18 +31,32 @@ def create_app():
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
     if not app.config["SECRET_KEY"]:
      raise ValueError("SECRET_KEY is not set!")
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:pFakuKfatsmgOtpWkBLMjweZfKNgWiJm@interchange.proxy.rlwy.net:11993/railway"
+    
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("SQLALCHEMY_DATABASE_URI")
+    if not app.config["SQLALCHEMY_DATABASE_URI"]:
+     raise ValueError("SQLALCHEMY_DATABASE_URI is not set!")
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
-    app.config["MAIL_SERVER"] = "smtp.gmail.com"
-    app.config["MAIL_PORT"] = 587
-    app.config["MAIL_USE_TLS"] = True
-    app.config["MAIL_USERNAME"] = "seth73602@gmail.com"
-    app.config["MAIL_PASSWORD"] = "ayht idek ajkv rfgl"
-    app.config["MAIL_DEFAULT_SENDER"] = "seth73602@gmail.com"
-    
+
+   
+
+# Email configuration
+    app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
+    app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT", 587))
+    app.config["MAIL_USE_TLS"] = os.environ.get("MAIL_USE_TLS", "True").lower() == "true"
+    app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
+    app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
+    app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
+    #display_name = os.environ.get("MAIL_DEFAULT_SENDER_NAME")
+    #username = app.config["MAIL_USERNAME"]
+
+    #if display_name and username:
+    #  app.config["MAIL_DEFAULT_SENDER"] = (display_name, username)
+    #elif username:
+    #  app.config["MAIL_DEFAULT_SENDER"] = username
+
   
     mail.init_app(app)
 
