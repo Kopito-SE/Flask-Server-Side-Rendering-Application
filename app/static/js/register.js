@@ -101,27 +101,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Validation functions
     function validateUsername(value) {
-        const usernameRegex = /^[a-zA-Z0-9_]+$/;
-        const usernameFeedback = document.getElementById('username-feedback');
-        
-        if (value.length < 3) {
-            if (usernameFeedback) {
-                usernameFeedback.textContent = 'Username must be at least 3 characters long';
-                usernameFeedback.classList.add('error');
-            }
-            return false;
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    const usernameFeedback = document.getElementById('username-feedback');
+    
+    if (value.length < 3) {
+        if (usernameFeedback) {
+            usernameFeedback.textContent = 'Username must be at least 3 characters long';
+            usernameFeedback.classList.add('error');
         }
-        
-        if (!usernameRegex.test(value)) {
-            if (usernameFeedback) {
-                usernameFeedback.textContent = 'Username can only contain letters, numbers, and underscores';
-                usernameFeedback.classList.add('error');
-            }
-            return false;
-        }
-        
-        return true;
+        return false;
     }
+    
+    if (!usernameRegex.test(value)) {
+        if (usernameFeedback) {
+            usernameFeedback.textContent = 'Username can only contain letters, numbers, and underscores';
+            usernameFeedback.classList.add('error');
+        }
+        return false;
+    }
+    
+    // Clear any existing error message when validation passes
+    if (usernameFeedback) {
+        usernameFeedback.textContent = '';
+        usernameFeedback.classList.remove('error');
+    }
+    
+    return true;
+}
 
     function validatePassword(value) {
         const passwordFeedback = document.getElementById('password-feedback');

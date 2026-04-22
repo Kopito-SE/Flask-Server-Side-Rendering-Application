@@ -2,13 +2,13 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
-    const username = document.getElementById('username');
+    const email = document.getElementById('email');
     const rememberCheckbox = document.querySelector('input[name="remember"]');
 
-    // Check for saved username (if "remember me" was previously checked)
-    const savedUsername = localStorage.getItem('rememberedUsername');
-    if (savedUsername && username) {
-        username.value = savedUsername;
+    // Check for saved email (fallback to old username key for backward compatibility)
+    const savedEmail = localStorage.getItem('rememberedEmail') || localStorage.getItem('rememberedUsername');
+    if (savedEmail && email) {
+        email.value = savedEmail;
         if (rememberCheckbox) {
             rememberCheckbox.checked = true;
         }
@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Validate fields
             let isValid = true;
             
-            if (!username.value.trim()) {
-                utils.showError(username, 'Username is required');
+            if (!email.value.trim()) {
+                utils.showError(email, 'Email is required');
                 isValid = false;
             }
             
@@ -42,8 +42,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Handle "remember me"
                 if (rememberCheckbox && rememberCheckbox.checked) {
-                    localStorage.setItem('rememberedUsername', username.value);
+                    localStorage.setItem('rememberedEmail', email.value);
                 } else {
+                    localStorage.removeItem('rememberedEmail');
                     localStorage.removeItem('rememberedUsername');
                 }
                 

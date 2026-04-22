@@ -1,7 +1,6 @@
-from pdb import main
-
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import func
 from ..models import User
 from .. import db
 import random
@@ -14,9 +13,9 @@ auth = Blueprint("auth", __name__)
 @auth.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        email = request.form.get("email")
-        username = request.form.get("username")
-        password = request.form.get("password")
+        email = (request.form.get("email") or "").strip().lower()
+        username = (request.form.get("username") or "").strip()
+        password = request.form.get("password") or ""
         
         # Validate inputs
         if not all([username, password, email]):
@@ -28,7 +27,7 @@ def register():
             flash('Username already exists!')
             return redirect(url_for('auth.register'))
         
-        if User.query.filter_by(email=email).first():
+        if User.query.filter(func.lower(User.email) == email).first():
             flash('Email already registered!')
             return redirect(url_for('auth.register'))
         
@@ -96,10 +95,14 @@ def verify_email():
 @auth.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        email = (request.form.get("email") or "").strip()
+        password = request.form.get("password") or ""
 
-        user = User.query.filter_by(username=username).first()
+        if not email or not password:
+            flash("Email and password are required!")
+            return redirect(url_for("auth.login"))
+
+        user = User.query.filter(func.lower(User.email) == email.lower()).first()
 
         if user and check_password_hash(user.password, password):
             session["user_id"] = user.id
