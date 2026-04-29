@@ -2,6 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     const registerForm = document.getElementById('registerForm');
+    const email = document.getElementById('email');  // ADDED: Get email element
     const password = document.getElementById('password');
     const confirmPassword = document.getElementById('confirm_password');
     const username = document.getElementById('username');
@@ -44,6 +45,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // ADDED: Email real-time validation
+    if (email) {
+        email.addEventListener('input', function() {
+            validateEmail(this.value);
+        });
+    }
+
     if (password) {
         password.addEventListener('input', function() {
             validatePassword(this.value);
@@ -68,15 +76,17 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Get values
             const usernameValue = username.value.trim();
+            const emailValue = email ? email.value.trim() : '';  // ADDED: Get email value
             const passwordValue = password.value;
             
             // Validate all fields
             const isUsernameValid = validateUsername(usernameValue);
+            const isEmailValid = validateEmail(emailValue);  // ADDED: Email validation
             const isPasswordValid = validatePassword(passwordValue);
             const isConfirmValid = validateConfirm(confirmPassword ? confirmPassword.value : '');
             
-            // Only prevent submission if validation fails
-            if (!isUsernameValid || !isPasswordValid || !isConfirmValid) {
+            // Only prevent submission if validation fails (including email)
+            if (!isUsernameValid || !isEmailValid || !isPasswordValid || !isConfirmValid) {  // MODIFIED: Added isEmailValid
                 e.preventDefault();
                 return false;
             }
@@ -101,33 +111,65 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Validation functions
     function validateUsername(value) {
-    const usernameRegex = /^[a-zA-Z0-9_]+$/;
-    const usernameFeedback = document.getElementById('username-feedback');
-    
-    if (value.length < 3) {
-        if (usernameFeedback) {
-            usernameFeedback.textContent = 'Username must be at least 3 characters long';
-            usernameFeedback.classList.add('error');
+        const usernameRegex = /^[a-zA-Z0-9_]+$/;
+        const usernameFeedback = document.getElementById('username-feedback');
+        
+        if (value.length < 3) {
+            if (usernameFeedback) {
+                usernameFeedback.textContent = 'Username must be at least 3 characters long';
+                usernameFeedback.classList.add('error');
+            }
+            return false;
         }
-        return false;
-    }
-    
-    if (!usernameRegex.test(value)) {
-        if (usernameFeedback) {
-            usernameFeedback.textContent = 'Username can only contain letters, numbers, and underscores';
-            usernameFeedback.classList.add('error');
+        
+        if (!usernameRegex.test(value)) {
+            if (usernameFeedback) {
+                usernameFeedback.textContent = 'Username can only contain letters, numbers, and underscores';
+                usernameFeedback.classList.add('error');
+            }
+            return false;
         }
-        return false;
+        
+        // Clear any existing error message when validation passes
+        if (usernameFeedback) {
+            usernameFeedback.textContent = '';
+            usernameFeedback.classList.remove('error');
+        }
+        
+        return true;
     }
-    
-    // Clear any existing error message when validation passes
-    if (usernameFeedback) {
-        usernameFeedback.textContent = '';
-        usernameFeedback.classList.remove('error');
+
+    // ADDED: New email validation function
+    function validateEmail(value) {
+        const emailFeedback = document.getElementById('email-feedback');
+        
+        // Standard email regex pattern
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (!value) {
+            if (emailFeedback) {
+                emailFeedback.textContent = 'Email is required';
+                emailFeedback.classList.add('error');
+            }
+            return false;
+        }
+        
+        if (!emailRegex.test(value)) {
+            if (emailFeedback) {
+                emailFeedback.textContent = 'Please enter a valid email address (e.g., name@example.com)';
+                emailFeedback.classList.add('error');
+            }
+            return false;
+        }
+        
+        // Clear any existing error message when validation passes
+        if (emailFeedback) {
+            emailFeedback.textContent = '';
+            emailFeedback.classList.remove('error');
+        }
+        
+        return true;
     }
-    
-    return true;
-}
 
     function validatePassword(value) {
         const passwordFeedback = document.getElementById('password-feedback');
