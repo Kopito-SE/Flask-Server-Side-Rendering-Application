@@ -1,73 +1,92 @@
-# Flask Store & Admin Dashboard
+# Kopito Web Store
 
-Flask-based storefront with email-verified sign-up, MySQL persistence, cart/checkout flows, and an admin console for products, categories, orders, and users.
+Kopito Web Store is a Flask-based e-commerce project with user registration, email verification, product management, cart checkout, and an admin dashboard.
 
-## Key Features
-- Email-verified registration (Flask-Mail) with hashed passwords.
-- Session login/logout and role-based access (`user` vs `admin`).
-- Catalog with categories, product images, and detail pages.
-- Cart with quantity updates, checkout, order history, and status updates.
-- Admin dashboard metrics plus CRUD for products, categories, orders, and users.
-- Responsive Jinja templates with custom CSS/JS in `app/static`.
+## Features
+
+- User registration and login
+- Email verification with code
+- Product listing and product details
+- Category-based browsing
+- Shopping cart and checkout
+- Order history
+- Admin dashboard for managing products, categories, orders, and users
+- Product image upload using local storage and Cloudinary support
 
 ## Tech Stack
-- Python 3.10+, Flask, Jinja2, Flask-SQLAlchemy, Flask-Mail, PyMySQL, Werkzeug.
-- MySQL 8.x (default DB name: `flask_authentication`).
 
-## Project Layout
-C:/Users/Hp 840 g3/PycharmProjects/Student_Management_System/Student_Mangement_System/Structured_Flask/Flask-Structured-Application/
-├── run.py
+- Python
+- Flask
+- Flask-SQLAlchemy
+- Flask-Mail
+- MySQL
+- Jinja2
+- Cloudinary
+
+## Project Structure
+
+```text
+Flask-Structured-Application/
 ├── app/
-│   ├── __init__.py
+│   ├── auth/
+│   ├── main/
+│   ├── static/
+│   ├── templates/
 │   ├── models.py
-│   ├── auth/routes.py
-│   ├── main/routes.py
-│   ├── static/...
-│   └── templates/...
-└── .git/
+│   └── __init__.py
+├── run.py
+├── requirements.txt
+└── README.md
+```
 
-## Prerequisites
-- Python 3.10 or newer
-- MySQL server (user able to create the `flask_authentication` schema)
-- SMTP credentials (TLS on port 587; e.g., Gmail app password)
+## Installation
 
-## Setup (local)
-1) Clone the repo and `cd` into the path above.
-2) Virtualenv: `python -m venv .venv && .\.venv\Scripts\activate`
-3) Install deps: `pip install Flask Flask-SQLAlchemy Flask-Mail PyMySQL python-dotenv`
-4) Configure secrets (prefer environment variables):
-   - `SECRET_KEY`
-   - `DATABASE_URL` (e.g., `mysql+pymysql://user:pass@host/dbname`)
-   - `MAIL_SERVER`, `MAIL_PORT`, `MAIL_USE_TLS`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_DEFAULT_SENDER`
-   The current defaults live in the app factory; adjust or load them from env before running.
-5) Create the database (or point `DATABASE_URL` to an existing one):
-   `CREATE DATABASE flask_authentication CHARACTER SET utf8mb4;`
-6) Start the app (tables auto-create on first run):
-   `python "C:/Users/Hp 840 g3/PycharmProjects/Student_Management_System/Student_Mangement_System/Structured_Flask/Flask-Structured-Application/run.py"`
-7) Open http://localhost:5000
+1. Create a virtual environment
+2. Install dependencies
+3. Set up environment variables
+4. Create the database
+5. Run the app
 
-## Roles and Admin Access
-- New users default to role `user`. Promote an account in MySQL:
-  `UPDATE user SET role='admin' WHERE email='<your email>';`
-- Admin-only areas: dashboard, products, categories, orders, users.
+```bash
+pip install -r requirements.txt
+python run.py
+```
 
-## Email Verification
-- Registration sends a 6-digit code via SMTP; verification state is stored in the session.
-- For Gmail, create an app password and use TLS on port 587.
+## Environment Variables
 
-## File Uploads
-- Product images save to `app/static/uploads`; the folder is created if missing. Ensure the runtime user can write there.
+Create a `.env` file inside `app/` or set these in your environment:
 
-## Helpful Commands
-- Flask shell for quick seeding:
-  `flask --app "C:/Users/Hp 840 g3/PycharmProjects/Student_Management_System/Student_Mangement_System/Structured_Flask/Flask-Structured-Application/run.py" shell`
-- Capture dependencies:
-  `pip freeze > requirements.txt`
+```env
+SECRET_KEY=your_secret_key
+SQLALCHEMY_DATABASE_URI=your_database_url
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USE_TLS=True
+MAIL_USERNAME=your_email
+MAIL_PASSWORD=your_password
+MAIL_DEFAULT_SENDER=your_email
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
 
-## Production Checklist
-- Replace hard-coded secrets with environment variables; disable `debug=True`.
-- Run behind a production WSGI server (gunicorn/uwsgi) and a reverse proxy.
-- Use managed MySQL and SMTP; rotate strong passwords.
-- Serve `app/static/uploads` via your web server and enforce upload size limits.
+## Running the Project
 
-_Last updated: 2026-04-01_
+```bash
+python run.py
+```
+
+Then open:
+
+```text
+http://127.0.0.1:5000
+```
+
+## Admin Access
+
+Users are created as normal users by default. To use admin pages, update the user role in the database to `admin`.
+
+## Notes
+
+- Product images can be stored locally or uploaded to Cloudinary
+- Database tables are created automatically when the app starts
