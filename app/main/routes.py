@@ -541,6 +541,7 @@ def delete_user(user_id):
         return redirect(url_for("main.home"))
     
     user_to_delete = User.query.get_or_404(user_id)
+    deleted_username = user_to_delete.username
     
     # Prevent admin from deleting themselves
     if user_to_delete.id == admin_user.id:
@@ -561,7 +562,7 @@ def delete_user(user_id):
         db.session.delete(user_to_delete)
         db.session.commit()
         
-        flash(f"User {user_to_delete.username} has been deleted successfully!")
+        flash(f"User {deleted_username} has been deleted successfully!")
     except Exception as e:
         db.session.rollback()
         flash(f"Error deleting user: {str(e)}")

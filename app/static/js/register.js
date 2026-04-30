@@ -8,8 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const username = document.getElementById('username');
     const registerBtn = document.getElementById('registerBtn');
     
-    // Create utils object if it doesn't exist
-    window.utils = window.utils || {
+    const formUtils = {
         showLoading: function(btn) {
             if (btn) {
                 btn.disabled = true;
@@ -30,10 +29,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         clearErrors: function(form) {
-            const errors = form.querySelectorAll('.validation-feedback.error');
+            const errors = form.querySelectorAll('.validation-feedback.error, .validation-error');
             errors.forEach(error => {
                 error.textContent = '';
                 error.classList.remove('error');
+            });
+
+            form.querySelectorAll('.input-error, .form-control.error').forEach(input => {
+                input.classList.remove('input-error', 'error');
             });
         }
     };
@@ -71,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (registerForm) {
         registerForm.addEventListener('submit', async function(e) {
             // Clear previous errors and tips
-            utils.clearErrors(registerForm);
+            formUtils.clearErrors(registerForm);
             clearPasswordTips();
             
             // Get values
@@ -93,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Show loading state
             if (registerBtn) {
-                utils.showLoading(registerBtn);
+                formUtils.showLoading(registerBtn);
             }
             
             // Form will submit normally - don't call registerForm.submit() here

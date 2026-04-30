@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, current_app, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 from ..models import User
@@ -16,10 +16,19 @@ def register():
         email = (request.form.get("email") or "").strip().lower()
         username = (request.form.get("username") or "").strip()
         password = request.form.get("password") or ""
+        confirm_password = request.form.get("confirm_password") or ""
         
         # Validate inputs
         if not all([username, password, email]):
             flash('All fields are required!')
+            return redirect(url_for('auth.register'))
+
+        if password != confirm_password:
+            flash('Passwords do not match!')
+            return redirect(url_for('auth.register'))
+
+        if len(password) < 6:
+            flash('Password must be at least 6 characters long!')
             return redirect(url_for('auth.register'))
         
         # Check if user exists
@@ -46,7 +55,16 @@ def register():
         )
 
         msg.body = f'Your verification code is: {code}'
-        mail.send(msg)
+        try:
+            mail.send(msg)
+        except Exception as e:
+            current_app.logger.exception("Registration verification email failed: %s", e)
+            session.pop("verify_email", None)
+            session.pop("verify_username", None)
+            session.pop("verify_password", None)
+            session.pop("verification_code", None)
+            flash('Could not send verification email. Please try again.')
+            return redirect(url_for('auth.register'))
         
         flash('Verification code sent to your email!')
         return redirect(url_for('auth.verify_email'))
@@ -58,7 +76,7 @@ def verify_email():
     #Check if all data exists
     if not all(k in session for k in ["verify_email", "verify_username", "verify_password", "verification_code"]):
         flash("No registration in progress,Register first")
-        return redirect("auth.register")
+        return redirect(url_for("auth.register"))
     
     
     if request.method == 'POST':

@@ -76,6 +76,10 @@ def create_app():
             _ensure_column_exists("product", "image", "image VARCHAR(200)")
             _ensure_column_exists("product", "cloudinary_url", "cloudinary_url VARCHAR(300)")
             _ensure_column_exists("product", "category_id", "category_id INTEGER")
+            _ensure_column_exists("user", "verified", "verified BOOLEAN DEFAULT FALSE")
+            _ensure_column_exists("user", "verification_code", "verification_code VARCHAR(100)")
+            _ensure_column_exists("user", "code_expiry", "code_expiry DATETIME")
+            _ensure_column_exists("user", "created_at", "created_at DATETIME")
         except Exception as e:
             print(f"Schema sync warning: {e}")
         print("Database table created")
